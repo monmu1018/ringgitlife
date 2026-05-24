@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 
 const STORAGE_PREFIX = "ringgitlife_v5_";
 const SETTINGS_KEY = "ringgitlife_settings_v1";
-const PROFILE_KEY = "ringgitlife_profile_v1";
 
 const commitmentCategories = [
   "Rent",
@@ -32,8 +31,6 @@ const homeCountryCategories = [
 ];
 
 const spendingCategories = [
-  "Daily total",
-  "Card import",
   "Food",
   "Coffee",
   "Grab / Transport",
@@ -202,24 +199,9 @@ function makeCommitment(name, amount, dueDay) {
   };
 }
 
-function makeGoal(name, target, saved = 0, dueDate = "", note = "") {
-  return {
-    id: uid(),
-    name,
-    target,
-    saved,
-    dueDate,
-    note,
-  };
-}
-
 function blankData(monthKey = currentMonth()) {
   return {
     selectedMonth: monthKey,
-    personal: {
-      monthlySpendingTarget: 0,
-      homeCurrency: "KRW",
-    },
     income: {
       netSalary: 0,
       salaryDay: 25,
@@ -234,7 +216,6 @@ function blankData(monthKey = currentMonth()) {
     },
     commitments: [],
     spendingLogs: [],
-    goals: [],
     exchangeRates: {
       rmToKrw: 290,
       usdToRm: 4.7,
@@ -269,10 +250,6 @@ function sampleData(monthKey = currentMonth()) {
       investmentTarget: 1000,
       lifestyleTarget: 0,
     },
-    personal: {
-      monthlySpendingTarget: 5500,
-      homeCurrency: "KRW",
-    },
     commitments: [
       makeCommitment("Rent", 2800, 1),
       makeCommitment("Utilities", 250, 10),
@@ -291,10 +268,6 @@ function sampleData(monthKey = currentMonth()) {
       { id: uid(), date: todayInput(), amount: 25, category: "Grab / Transport", note: "Grab" },
       { id: uid(), date: todayInput(), amount: 120, category: "Groceries", note: "Groceries" },
     ],
-    goals: [
-      makeGoal("Emergency flight fund", 2500, 900, "", "A calm buffer for flights home."),
-      makeGoal("Japan trip", 6000, 1800, "", "Travel without touching rent money."),
-    ],
   };
 }
 
@@ -302,7 +275,6 @@ export default function App() {
   const initialAppState = (() => {
     let selectedMonth = currentMonth();
     let showOnboarding = true;
-    let profile = null;
 
     const rawSettings = localStorage.getItem(SETTINGS_KEY);
     if (rawSettings) {
@@ -314,15 +286,6 @@ export default function App() {
         }
       } catch {
         // corrupted settings ignored
-      }
-    }
-
-    const rawProfile = localStorage.getItem(PROFILE_KEY);
-    if (rawProfile) {
-      try {
-        profile = JSON.parse(rawProfile);
-      } catch {
-        profile = null;
       }
     }
 
@@ -342,7 +305,7 @@ export default function App() {
       }
     }
 
-    return { selectedMonth, showOnboarding, data, profile };
+    return { selectedMonth, showOnboarding, data };
   })();
 
   const [selectedMonth, setSelectedMonth] = useState(initialAppState.selectedMonth);
@@ -350,16 +313,6 @@ export default function App() {
   const [toast, setToast] = useState("");
   const [lastSavedAt, setLastSavedAt] = useState("");
   const [showOnboarding, setShowOnboarding] = useState(initialAppState.showOnboarding);
-  const [activeTab, setActiveTab] = useState("today");
-  const [profile, setProfile] = useState(initialAppState.profile);
-  const [isUnlocked, setIsUnlocked] = useState(
-    initialAppState.profile ? !initialAppState.profile.lockEnabled : false
-  );
-  const [authDraft, setAuthDraft] = useState({
-    name: initialAppState.profile?.name || "",
-    email: initialAppState.profile?.email || "",
-    passcode: "",
-  });
 
   const [spendingDraft, setSpendingDraft] = useState({
     date: todayInput(),
@@ -367,11 +320,6 @@ export default function App() {
     category: "Food",
     note: "",
   });
-  const [dailyTotalDraft, setDailyTotalDraft] = useState({
-    date: todayInput(),
-    amount: "",
-  });
-  const [pasteDraft, setPasteDraft] = useState("");
 
   const [fxData, setFxData] = useState({
     loading: false,
@@ -453,12 +401,7 @@ export default function App() {
     const flexible = data.spendingLogs.reduce((sum, item) => sum + num(item.amount), 0);
 
     const spendableBeforeFlexible = income - fixed - savings;
-    const spendingTarget = num(data.personal?.monthlySpendingTarget);
-    const monthlySpendLimit =
-      spendingTarget > 0
-        ? Math.min(spendableBeforeFlexible, spendingTarget)
-        : spendableBeforeFlexible;
-    const remaining = monthlySpendLimit - flexible;
+    const remaining = spendableBeforeFlexible - flexible;
     const left = daysLeft(selectedMonth);
     const daily = remaining / left;
 
@@ -466,14 +409,14 @@ export default function App() {
     const fixedRatio = income > 0 ? (fixed / income) * 100 : 0;
 
     const expectedFlexibleUsed =
-      monthlySpendLimit * monthProgress(selectedMonth);
+      spendableBeforeFlexible * monthProgress(selectedMonth);
 
     const paceRatio =
       expectedFlexibleUsed > 0 ? (flexible / expectedFlexibleUsed) * 100 : 0;
 
     const spendableProgress =
-      monthlySpendLimit > 0
-        ? clamp((flexible / monthlySpendLimit) * 100, 0, 999)
+      spendableBeforeFlexible > 0
+        ? clamp((flexible / spendableBeforeFlexible) * 100, 0, 999)
         : 0;
 
     let score = 100;
@@ -506,7 +449,7 @@ export default function App() {
     let paceMessage = "No local spending pace yet.";
     let paceType = "neutral";
 
-    if (monthlySpendLimit > 0) {
+    if (spendableBeforeFlexible > 0) {
       if (paceRatio > 120) {
         paceMessage = "Your local spending is faster than planned.";
         paceType = "danger";
@@ -525,8 +468,6 @@ export default function App() {
       savings,
       flexible,
       spendableBeforeFlexible,
-      spendingTarget,
-      monthlySpendLimit,
       remaining,
       left,
       daily,
@@ -556,19 +497,6 @@ export default function App() {
       completed: steps.filter((step) => step.done).length,
     };
   }, [data, totals.savings]);
-
-  const goalSummary = useMemo(() => {
-    const goals = data.goals || [];
-    const target = goals.reduce((sum, item) => sum + num(item.target), 0);
-    const saved = goals.reduce((sum, item) => sum + num(item.saved), 0);
-
-    return {
-      count: goals.length,
-      target,
-      saved,
-      percent: target > 0 ? clamp(Math.round((saved / target) * 100), 0, 100) : 0,
-    };
-  }, [data.goals]);
 
   const topSpending = useMemo(() => {
     const grouped = {};
@@ -661,101 +589,6 @@ export default function App() {
     setToast(message);
   }
 
-  function saveProfile(event) {
-    event.preventDefault();
-    const nextPasscode = authDraft.passcode.trim() || profile?.passcode || "";
-
-    const nextProfile = {
-      name: authDraft.name.trim() || "Malaysia expat",
-      email: authDraft.email.trim(),
-      passcode: nextPasscode,
-      lockEnabled: nextPasscode.length > 0,
-      createdAt: profile?.createdAt || new Date().toISOString(),
-    };
-
-    localStorage.setItem(PROFILE_KEY, JSON.stringify(nextProfile));
-    setProfile(nextProfile);
-    setIsUnlocked(true);
-    setAuthDraft((prev) => ({ ...prev, passcode: "" }));
-    notify("Profile saved.");
-  }
-
-  function unlockProfile(event) {
-    event.preventDefault();
-
-    if (!profile?.lockEnabled || authDraft.passcode === profile.passcode) {
-      setIsUnlocked(true);
-      setAuthDraft((prev) => ({ ...prev, passcode: "" }));
-      notify("Welcome back.");
-      return;
-    }
-
-    notify("Passcode does not match.");
-  }
-
-  function lockApp() {
-    if (!profile?.lockEnabled) {
-      setActiveTab("me");
-      notify("Add a passcode in Privacy first.");
-      return;
-    }
-
-    setIsUnlocked(false);
-    setAuthDraft((prev) => ({ ...prev, passcode: "" }));
-  }
-
-  function saveQuickSetup(event) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const income = num(form.get("income"));
-    const spendTarget = num(form.get("spendTarget"));
-    const fixedEstimate = num(form.get("fixedEstimate"));
-
-    if (income <= 0 || spendTarget <= 0) {
-      notify("Add income and a monthly spend target.");
-      return;
-    }
-
-    setData((prev) => {
-      const nextCommitments = [...prev.commitments];
-      const estimateIndex = nextCommitments.findIndex(
-        (item) => item.name === "Fixed costs estimate"
-      );
-
-      if (fixedEstimate > 0) {
-        const estimate = makeCommitment("Fixed costs estimate", fixedEstimate, 1);
-        estimate.category = "Other";
-        estimate.notes = "Quick setup estimate";
-
-        if (estimateIndex >= 0) {
-          nextCommitments[estimateIndex] = {
-            ...nextCommitments[estimateIndex],
-            amount: fixedEstimate,
-          };
-        } else {
-          nextCommitments.unshift(estimate);
-        }
-      }
-
-      return {
-        ...prev,
-        personal: {
-          ...blankData(selectedMonth).personal,
-          ...prev.personal,
-          monthlySpendingTarget: spendTarget,
-        },
-        income: {
-          ...prev.income,
-          netSalary: income,
-        },
-        commitments: nextCommitments,
-      };
-    });
-
-    setShowOnboarding(false);
-    notify("Simple setup saved.");
-  }
-
   async function fetchLatestRates() {
     setFxData((prev) => ({ ...prev, loading: true, error: "" }));
 
@@ -798,17 +631,6 @@ export default function App() {
       savings: {
         ...prev.savings,
         [field]: num(value),
-      },
-    }));
-  }
-
-  function updatePersonal(field, value) {
-    setData((prev) => ({
-      ...prev,
-      personal: {
-        ...blankData(selectedMonth).personal,
-        ...prev.personal,
-        [field]: field === "monthlySpendingTarget" ? num(value) : value,
       },
     }));
   }
@@ -925,151 +747,12 @@ export default function App() {
     notify("Spending saved.");
   }
 
-  function addDailyTotal(event) {
-    event.preventDefault();
-
-    const item = {
-      id: uid(),
-      date: dailyTotalDraft.date || todayInput(),
-      amount: num(dailyTotalDraft.amount),
-      category: "Daily total",
-      note: "Daily card/cash total",
-    };
-
-    if (item.amount <= 0) {
-      notify("Add today's total amount.");
-      return;
-    }
-
-    setData((prev) => ({
-      ...prev,
-      spendingLogs: [item, ...prev.spendingLogs],
-    }));
-
-    setDailyTotalDraft({
-      date: todayInput(),
-      amount: "",
-    });
-    notify("Daily total saved.");
-  }
-
-  function addPastedTransactions(event) {
-    event.preventDefault();
-
-    const lines = pasteDraft
-      .split(/\n+/)
-      .map((line) => line.trim())
-      .filter(Boolean);
-
-    const items = lines
-      .map((line) => {
-        const amountMatch = line.match(/(?:RM|MYR)?\s*(-?\d{1,3}(?:,\d{3})*(?:\.\d{1,2})|-?\d+(?:\.\d{1,2}))/i);
-        if (!amountMatch) return null;
-
-        const amount = Math.abs(num(amountMatch[1].replace(/,/g, "")));
-        if (amount <= 0) return null;
-
-        const dateMatch = line.match(/\b(\d{4}-\d{2}-\d{2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)\b/);
-
-        return {
-          id: uid(),
-          date: normalizePastedDate(dateMatch?.[1]) || todayInput(),
-          amount,
-          category: "Card import",
-          note: line.slice(0, 90),
-        };
-      })
-      .filter(Boolean);
-
-    if (items.length === 0) {
-      notify("No transaction amounts found.");
-      return;
-    }
-
-    setData((prev) => ({
-      ...prev,
-      spendingLogs: [...items, ...prev.spendingLogs],
-    }));
-
-    setPasteDraft("");
-    notify(`${items.length} transaction${items.length === 1 ? "" : "s"} added.`);
-  }
-
-  function normalizePastedDate(value) {
-    if (!value) return "";
-    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-
-    const parts = value.split(/[/-]/).map(Number);
-    if (parts.length < 2) return "";
-
-    const now = new Date();
-    const day = String(parts[0]).padStart(2, "0");
-    const month = String(parts[1]).padStart(2, "0");
-    const year = parts[2]
-      ? String(parts[2]).length === 2
-        ? `20${parts[2]}`
-        : String(parts[2])
-      : String(now.getFullYear());
-
-    return `${year}-${month}-${day}`;
-  }
-
   function deleteSpending(id) {
     setData((prev) => ({
       ...prev,
       spendingLogs: prev.spendingLogs.filter((item) => item.id !== id),
     }));
     notify("Spending deleted.");
-  }
-
-  function addGoal(event) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const name = String(form.get("name") || "").trim();
-    const target = num(form.get("target"));
-
-    if (!name || target <= 0) {
-      notify("Add a goal name and target.");
-      return;
-    }
-
-    const goal = makeGoal(
-      name,
-      target,
-      num(form.get("saved")),
-      form.get("dueDate") || "",
-      form.get("note") || ""
-    );
-
-    setData((prev) => ({
-      ...prev,
-      goals: [goal, ...(prev.goals || [])],
-    }));
-
-    event.currentTarget.reset();
-    notify("Goal created.");
-  }
-
-  function updateGoal(id, field, value) {
-    setData((prev) => ({
-      ...prev,
-      goals: (prev.goals || []).map((goal) =>
-        goal.id === id
-          ? {
-              ...goal,
-              [field]: field === "target" || field === "saved" ? num(value) : value,
-            }
-          : goal
-      ),
-    }));
-  }
-
-  function deleteGoal(id) {
-    setData((prev) => ({
-      ...prev,
-      goals: (prev.goals || []).filter((goal) => goal.id !== id),
-    }));
-    notify("Goal deleted.");
   }
 
   function loadPreset(name) {
@@ -1226,83 +909,8 @@ export default function App() {
     return formatPlain(value);
   }
 
-  if (!isUnlocked) {
-    const isProfileSetup = !profile;
-
-    return (
-      <main className="auth-shell">
-        {toast && <div className="toast">{toast}</div>}
-
-        <section className="auth-card">
-          <div className="brand-lockup">
-            <div className="brand-mark">RL</div>
-            <div>
-              <strong>RinggitLife</strong>
-              <span>Private money sense</span>
-            </div>
-          </div>
-
-          <div>
-            <p className="eyebrow">
-              {isProfileSetup ? "Private profile" : "Personal finance lock"}
-            </p>
-            <h1>
-              {isProfileSetup
-                ? "Create your Malaysia money profile."
-                : "Unlock your Malaysia money view."}
-            </h1>
-            <p className="tagline">
-              Your data stays on this device. This is a local app profile,
-              not a cloud account yet.
-            </p>
-          </div>
-
-          <form
-            className="auth-form"
-            onSubmit={isProfileSetup ? saveProfile : unlockProfile}
-          >
-            {isProfileSetup && (
-              <>
-                <input
-                  placeholder="Name"
-                  value={authDraft.name}
-                  onChange={(event) =>
-                    setAuthDraft((prev) => ({ ...prev, name: event.target.value }))
-                  }
-                  autoFocus
-                />
-                <input
-                  type="email"
-                  placeholder="Email, optional"
-                  value={authDraft.email}
-                  onChange={(event) =>
-                    setAuthDraft((prev) => ({ ...prev, email: event.target.value }))
-                  }
-                />
-              </>
-            )}
-
-            <input
-              type="password"
-              inputMode="numeric"
-              placeholder={isProfileSetup ? "Passcode, optional" : "Passcode"}
-              value={authDraft.passcode}
-              onChange={(event) =>
-                setAuthDraft((prev) => ({ ...prev, passcode: event.target.value }))
-              }
-              autoFocus={!isProfileSetup}
-            />
-            <button type="submit">
-              {isProfileSetup ? "Start RinggitLife" : "Unlock"}
-            </button>
-          </form>
-        </section>
-      </main>
-    );
-  }
-
   return (
-    <main className={`app-shell app-mode mobile-tab-${activeTab}`}>
+    <main className="app-shell">
       {toast && <div className="toast">{toast}</div>}
 
       <header className="topbar" aria-label="RinggitLife navigation">
@@ -1310,13 +918,9 @@ export default function App() {
           <div className="brand-mark">RL</div>
           <div>
             <strong>RinggitLife</strong>
-            <span>{profile?.name || "Money sense for expat life"}</span>
+            <span>Money sense for expat life</span>
           </div>
         </div>
-
-        <button className="lock-button" type="button" onClick={lockApp}>
-          Lock
-        </button>
 
         <nav className="top-nav" aria-label="Page sections">
           <a href="#plan">Plan</a>
@@ -1407,90 +1011,34 @@ export default function App() {
       </section>
 
       {showOnboarding && onboarding.completed < onboarding.steps.length && (
-        <section className="onboarding-card tab-section today-tab">
+        <section className="onboarding-card">
           <div>
-            <p className="label">No bank login needed</p>
-            <h3>Start with 3 rough numbers</h3>
+            <p className="label">Start in under 3 minutes</p>
+            <h3>Map your Malaysia money reality</h3>
             <p>
-              Add income, fixed costs, and this month's spending target. You can
-              adjust the details later.
+              Add MYR income, fixed commitments, and savings or remittance goals.
+              RinggitLife will show your daily safe-to-spend amount.
             </p>
           </div>
 
-          <form className="quick-setup-form" onSubmit={saveQuickSetup}>
-            <input
-              name="income"
-              type="number"
-              step="0.01"
-              placeholder="Monthly income RM"
-              defaultValue={data.income.netSalary || ""}
-            />
-            <input
-              name="spendTarget"
-              type="number"
-              step="0.01"
-              placeholder="Monthly spending target RM"
-              defaultValue={data.personal?.monthlySpendingTarget || ""}
-            />
-            <input
-              name="fixedEstimate"
-              type="number"
-              step="0.01"
-              placeholder="Fixed costs estimate RM"
-              defaultValue={totals.fixed || ""}
-            />
-            <button type="submit">Show my safe-to-spend</button>
-          </form>
+          <div className="onboarding-steps">
+            {onboarding.steps.map((step) => (
+              <div className={step.done ? "step done" : "step"} key={step.label}>
+                <span>{step.done ? "✓" : "•"}</span>
+                {step.label}
+              </div>
+            ))}
+          </div>
 
           <button className="text-button" onClick={() => setShowOnboarding(false)}>
-            Skip
+            Hide guide
           </button>
         </section>
       )}
 
       <section className="layout">
         <div className="main-column">
-          <section className="screen-title tab-section today-tab">
-            <p className="eyebrow">Today</p>
-            <h1>Today, how much can I spend?</h1>
-          </section>
-
-          <section className="mobile-month-card tab-section today-tab">
-            <label className="month-picker">
-              <span>Malaysia month</span>
-              <input
-                type="month"
-                value={selectedMonth}
-                onChange={(event) => loadMonthData(event.target.value)}
-              />
-            </label>
-
-            <button className="ghost-button" onClick={loadSample}>
-              Load sample
-            </button>
-          </section>
-
-          {totals.income > 0 && (totals.remaining < 0 || totals.paceRatio > 120) && (
-            <section className="status-card danger tab-section today-tab">
-              <p className="label">Slow down</p>
-              <h3>
-                {totals.remaining < 0
-                  ? `${formatMYR(Math.abs(totals.remaining))} over your safe plan`
-                  : "Spending faster than planned"}
-              </h3>
-              <p>
-                Use Daily Total tonight and try a low-spend day to bring your
-                safe-to-spend back up.
-              </p>
-            </section>
-          )}
-
-          <section className="screen-title tab-section spend-tab">
-            <p className="eyebrow">Spend</p>
-            <h1>Log it the lazy way.</h1>
-          </section>
-
-          <section className={`safe-card tab-section today-tab ${totals.statusType}`}>
+          <section className={`safe-card ${totals.statusType}`}>
             <div className="safe-card-top">
               <div>
                 <p className="label">Today’s Safe-to-Spend</p>
@@ -1519,62 +1067,16 @@ export default function App() {
             <ProgressBar value={totals.spendableProgress} />
           </section>
 
-          <section className="card quick-today-card tab-section today-tab">
-            <div className="quick-today-head">
-              <div>
-                <p className="label">Quick add</p>
-                <h3>Spent something?</h3>
-              </div>
-              <button type="button" className="text-button" onClick={() => setActiveTab("spend")}>
-                View all
-              </button>
-            </div>
-
-            <div className="quick-buttons compact">
-              {[5, 10, 20, 50].map((amount) => (
-                <button
-                  type="button"
-                  key={amount}
-                  onClick={() =>
-                    setSpendingDraft((prev) => ({
-                      ...prev,
-                      amount,
-                    }))
-                  }
-                >
-                  RM {amount}
-                </button>
-              ))}
-            </div>
-
-            <form className="quick-today-form" onSubmit={addSpending}>
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Amount RM"
-                value={spendingDraft.amount}
-                onChange={(event) =>
-                  setSpendingDraft((prev) => ({
-                    ...prev,
-                    amount: event.target.value,
-                  }))
-                }
-                required
-              />
-              <button type="submit">Save</button>
-            </form>
-          </section>
-
-          <section className="grid-cards tab-section today-tab">
+          <section className="grid-cards">
             <SummaryCard title="MYR income" value={formatMYR(totals.income)} />
             <SummaryCard title="Committed money" value={formatMYR(totals.fixed)} />
-            <SummaryCard title="Monthly spend goal" value={formatMYR(totals.monthlySpendLimit)} />
+            <SummaryCard title="Save / send target" value={formatMYR(totals.savings)} />
             <SummaryCard title="Still usable" value={formatMYR(totals.remaining)} />
             <SummaryCard title="Local spending" value={formatMYR(totals.flexible)} />
-            <SummaryCard title="Saving goals" value={`${goalSummary.count}`} />
+            <SummaryCard title="Save / send rate" value={`${totals.savingsRate.toFixed(1)}%`} />
           </section>
 
-          <section className="card score-card tab-section today-tab">
+          <section className="card score-card">
             <div className="score-top">
               <div>
                 <p className="label">Malaysia Money Sense Score</p>
@@ -1592,7 +1094,7 @@ export default function App() {
             </p>
           </section>
 
-          <section className="insight-grid tab-section today-tab" aria-label="Monthly insights">
+          <section className="insight-grid" aria-label="Monthly insights">
             {launchInsights.map((item) => (
               <article className="insight-card" key={item.label}>
                 <p className="label">{item.label}</p>
@@ -1602,45 +1104,17 @@ export default function App() {
             ))}
           </section>
 
-          <section className="screen-title tab-section me-tab">
-            <p className="eyebrow">Me</p>
-            <h1>Your money setup.</h1>
+          <section className="action-strip">
+            <button onClick={copyPreviousMonth}>Copy previous month setup</button>
+            <button onClick={exportBackup}>Export backup</button>
+            <label>
+              Import backup
+              <input type="file" accept="application/json,.json" onChange={importBackup} />
+            </label>
+            <button onClick={exportCsv}>Export spending CSV</button>
           </section>
 
-          <details className="card tab-section me-tab" open>
-            <summary>Personal Settings</summary>
-
-            <div className="form-grid">
-              <Input
-                label="Monthly local spending target"
-                value={data.personal?.monthlySpendingTarget || 0}
-                onChange={(value) => updatePersonal("monthlySpendingTarget", value)}
-              />
-
-              <label className="field">
-                <span>Home currency</span>
-                <select
-                  value={data.personal?.homeCurrency || "KRW"}
-                  onChange={(event) => updatePersonal("homeCurrency", event.target.value)}
-                >
-                  <option value="KRW">KRW</option>
-                  <option value="USD">USD</option>
-                  <option value="SGD">SGD</option>
-                  <option value="IDR">IDR</option>
-                  <option value="THB">THB</option>
-                  <option value="PHP">PHP</option>
-                </select>
-              </label>
-            </div>
-
-            <div className="insight-box">
-              <strong>Spend cap:</strong> {formatMYR(totals.monthlySpendLimit)}
-              <br />
-              <strong>Safe-to-spend:</strong> {formatMYR(totals.daily)} per day
-            </div>
-          </details>
-
-          <details className="card tab-section me-tab" id="plan">
+          <details className="card" id="plan" open>
             <summary>MYR Income Setup</summary>
 
             <div className="form-grid">
@@ -1667,7 +1141,7 @@ export default function App() {
             </div>
           </details>
 
-          <details className="card tab-section me-tab">
+          <details className="card" open>
             <summary>Savings / Remittance Goal</summary>
 
             <div className="form-grid">
@@ -1703,7 +1177,7 @@ export default function App() {
             </div>
           </details>
 
-          <details className="card tab-section me-tab">
+          <details className="card" open>
             <summary>Malaysia Expat Presets</summary>
 
             <div className="preset-grid">
@@ -1719,7 +1193,7 @@ export default function App() {
             </div>
           </details>
 
-          <details className="card tab-section me-tab">
+          <details className="card" open>
             <summary>Fixed Monthly Commitments</summary>
 
             <form className="commitment-form" onSubmit={addCommitment}>
@@ -1829,95 +1303,8 @@ export default function App() {
             </div>
           </details>
 
-          <section className="screen-title tab-section goals-tab">
-            <p className="eyebrow">Goals</p>
-            <h1>Build money for future you.</h1>
-          </section>
-
-          <section className="card goal-hero tab-section goals-tab">
-            <div>
-              <p className="label">Total goal progress</p>
-              <h3>{formatMYR(goalSummary.saved)}</h3>
-              <p className="save-status">
-                {goalSummary.count} goals toward {formatMYR(goalSummary.target)}
-              </p>
-            </div>
-            <div className="goal-ring">
-              <div>
-                <strong>{goalSummary.percent}%</strong>
-                <span>saved</span>
-              </div>
-            </div>
-            <ProgressBar value={goalSummary.percent} />
-          </section>
-
-          <details className="card tab-section goals-tab" open>
-            <summary>Create Goal</summary>
-
-            <form className="goal-form" onSubmit={addGoal}>
-              <input name="name" placeholder="Goal name, e.g. Emergency flight fund" required />
-              <input name="target" type="number" step="0.01" placeholder="Target RM" required />
-              <input name="saved" type="number" step="0.01" placeholder="Saved so far RM" />
-              <input name="dueDate" type="date" />
-              <input name="note" placeholder="Why this matters" />
-              <button type="submit">Create goal</button>
-            </form>
-          </details>
-
-          <section className="list tab-section goals-tab">
-            {(data.goals || []).length === 0 && (
-              <p className="empty">
-                No goals yet. Create one for travel, emergency cash, a deposit, or a flight home.
-              </p>
-            )}
-
-            {(data.goals || []).map((goal) => {
-              const percent =
-                num(goal.target) > 0
-                  ? clamp(Math.round((num(goal.saved) / num(goal.target)) * 100), 0, 100)
-                  : 0;
-
-              return (
-                <article className="list-item goal-item" key={goal.id}>
-                  <div className="goal-item-head">
-                    <div>
-                      <strong>{goal.name}</strong>
-                      <p>{goal.note || "Personal money goal"}</p>
-                    </div>
-                    <span>{percent}%</span>
-                  </div>
-
-                  <ProgressBar value={percent} />
-
-                  <div className="form-grid">
-                    <Input
-                      label="Target RM"
-                      value={goal.target}
-                      onChange={(value) => updateGoal(goal.id, "target", value)}
-                    />
-                    <Input
-                      label="Saved RM"
-                      value={goal.saved}
-                      onChange={(value) => updateGoal(goal.id, "saved", value)}
-                    />
-                  </div>
-
-                  <div className="item-actions">
-                    <button
-                      type="button"
-                      className="delete-button"
-                      onClick={() => deleteGoal(goal.id)}
-                    >
-                      Delete goal
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
-          </section>
-
-          <details className="card tab-section spend-tab" id="spending" open>
-            <summary>Fast Capture</summary>
+          <details className="card" id="spending" open>
+            <summary>Quick Local Spending Log</summary>
 
             <div className="quick-buttons">
               {[5, 10, 20, 50, 100].map((amount) => (
@@ -1991,60 +1378,7 @@ export default function App() {
             </form>
           </details>
 
-          <details className="card tab-section spend-tab" open>
-            <summary>Daily Total Mode</summary>
-
-            <form className="daily-total-form" onSubmit={addDailyTotal}>
-              <input
-                type="date"
-                value={dailyTotalDraft.date}
-                onChange={(event) =>
-                  setDailyTotalDraft((prev) => ({
-                    ...prev,
-                    date: event.target.value,
-                  }))
-                }
-              />
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Today total spent RM"
-                value={dailyTotalDraft.amount}
-                onChange={(event) =>
-                  setDailyTotalDraft((prev) => ({
-                    ...prev,
-                    amount: event.target.value,
-                  }))
-                }
-                required
-              />
-              <button type="submit">Save daily total</button>
-            </form>
-
-            <p className="helper-text">
-              Use this when you paid by card all day and only want the total to
-              affect safe-to-spend.
-            </p>
-          </details>
-
-          <details className="card tab-section spend-tab">
-            <summary>Paste Card Transactions</summary>
-
-            <form className="paste-form" onSubmit={addPastedTransactions}>
-              <textarea
-                placeholder={`Paste bank SMS or card lines, e.g.\n25/05 Grab RM 18.50\n2026-05-25 Coffee MYR 12.00`}
-                value={pasteDraft}
-                onChange={(event) => setPasteDraft(event.target.value)}
-              />
-              <button type="submit">Add pasted transactions</button>
-            </form>
-
-            <p className="helper-text">
-              No bank login needed. RinggitLife only extracts amounts from text you paste.
-            </p>
-          </details>
-
-          <details className="card tab-section spend-tab">
+          <details className="card">
             <summary>Local Spending History</summary>
 
             {topSpending.length > 0 && (
@@ -2091,7 +1425,7 @@ export default function App() {
             </div>
           </details>
 
-          <details className="card tab-section me-tab">
+          <details className="card">
             <summary>End-of-Month Reflection</summary>
 
             <div className="reflection-grid">
@@ -2118,10 +1452,13 @@ export default function App() {
             </div>
           </details>
 
+          <button className="danger-zone" onClick={resetMonth}>
+            Reset this month only
+          </button>
         </div>
 
         <aside className="side-column">
-          <section className="card sticky-summary tab-section today-tab">
+          <section className="card sticky-summary">
             <p className="label">This month</p>
             <h3>{selectedMonth}</h3>
             <p className="save-status">Last saved: {lastSavedAt || "Not yet"}</p>
@@ -2134,7 +1471,7 @@ export default function App() {
             <ProgressBar value={paidCommitments.percent} />
           </section>
 
-          <section className="card upcoming-card tab-section today-tab">
+          <section className="card upcoming-card">
             <p className="label">Upcoming unpaid</p>
             <h3>Next money out</h3>
 
@@ -2153,17 +1490,7 @@ export default function App() {
             </div>
           </section>
 
-          <section className="action-strip tab-section me-tab">
-            <button onClick={copyPreviousMonth}>Copy previous month setup</button>
-            <button onClick={exportBackup}>Export backup</button>
-            <label>
-              Import backup
-              <input type="file" accept="application/json,.json" onChange={importBackup} />
-            </label>
-            <button onClick={exportCsv}>Export spending CSV</button>
-          </section>
-
-          <section className="card fx-card tab-section me-tab" id="fx">
+          <section className="card fx-card" id="fx">
             <div className="fx-header">
               <div>
                 <p className="label">Latest FX Snapshot</p>
@@ -2204,7 +1531,7 @@ export default function App() {
             )}
           </section>
 
-          <section className="card tab-section me-tab">
+          <section className="card">
             <p className="label">Manual Currency Snapshot</p>
             <h3>Income reality check</h3>
 
@@ -2253,7 +1580,7 @@ export default function App() {
             </div>
           </section>
 
-          <section className="card converter-card tab-section me-tab">
+          <section className="card converter-card">
             <p className="label">Quick Converter</p>
             <h3>MYR / KRW / USD</h3>
 
@@ -2295,45 +1622,7 @@ export default function App() {
             </p>
           </section>
 
-          <section className="card tab-section me-tab">
-            <p className="label">Privacy profile</p>
-            <h3>Local app lock</h3>
-
-            <form className="auth-form profile-form" onSubmit={saveProfile}>
-              <input
-                placeholder="Name"
-                value={authDraft.name}
-                onChange={(event) =>
-                  setAuthDraft((prev) => ({ ...prev, name: event.target.value }))
-                }
-              />
-              <input
-                type="email"
-                placeholder="Email, optional"
-                value={authDraft.email}
-                onChange={(event) =>
-                  setAuthDraft((prev) => ({ ...prev, email: event.target.value }))
-                }
-              />
-              <input
-                type="password"
-                inputMode="numeric"
-                placeholder={profile?.lockEnabled ? "New passcode" : "Passcode for this device"}
-                value={authDraft.passcode}
-                onChange={(event) =>
-                  setAuthDraft((prev) => ({ ...prev, passcode: event.target.value }))
-                }
-              />
-              <button type="submit">Save privacy profile</button>
-            </form>
-
-            <p className="privacy-note">
-              Prototype lock only: this protects the app on this browser. Real login,
-              cloud sync, and account recovery need a backend before launch.
-            </p>
-          </section>
-
-          <section className="card korean-card tab-section me-tab">
+          <section className="card korean-card">
             <div className="toggle-row">
               <div>
                 <p className="label">Optional</p>
@@ -2362,7 +1651,7 @@ export default function App() {
             )}
           </section>
 
-          <section className="card tab-section me-tab">
+          <section className="card">
             <p className="label">Cash flow formula</p>
             <div className="formula">
               MYR income
@@ -2372,72 +1661,9 @@ export default function App() {
               <br />÷ Days left
             </div>
           </section>
-
-          <button className="danger-zone tab-section me-tab" onClick={resetMonth}>
-            Reset this month only
-          </button>
         </aside>
       </section>
-
-      <nav className="mobile-tabbar" aria-label="Mobile app sections">
-        <TabButton activeTab={activeTab} id="today" label="Today" icon="home" onSelect={setActiveTab} />
-        <TabButton activeTab={activeTab} id="spend" label="Spend" icon="log" onSelect={setActiveTab} />
-        <TabButton activeTab={activeTab} id="goals" label="Goals" icon="goal" onSelect={setActiveTab} />
-        <TabButton activeTab={activeTab} id="me" label="Me" icon="settings" onSelect={setActiveTab} />
-      </nav>
     </main>
-  );
-}
-
-function TabButton({ activeTab, id, label, icon, onSelect }) {
-  return (
-    <button
-      type="button"
-      className={activeTab === id ? "active" : ""}
-      onClick={() => onSelect(id)}
-    >
-      <TabIcon name={icon} />
-      <span>{label}</span>
-    </button>
-  );
-}
-
-function TabIcon({ name }) {
-  const icons = {
-    home: (
-      <path d="M4 10.5 12 4l8 6.5V20h-5v-6H9v6H4z" />
-    ),
-    log: (
-      <>
-        <path d="M6 4h12v16H6z" />
-        <path d="M9 8h6M9 12h6M9 16h4" />
-      </>
-    ),
-    plan: (
-      <>
-        <path d="M5 5h14v14H5z" />
-        <path d="M8 9h8M8 13h8M8 17h5" />
-      </>
-    ),
-    goal: (
-      <>
-        <circle cx="12" cy="12" r="7" />
-        <circle cx="12" cy="12" r="3" />
-        <path d="M16.5 7.5 19 5" />
-      </>
-    ),
-    settings: (
-      <>
-        <circle cx="12" cy="12" r="3" />
-        <path d="M12 3v3M12 18v3M4.2 7.5l2.6 1.5M17.2 15l2.6 1.5M4.2 16.5 6.8 15M17.2 9l2.6-1.5" />
-      </>
-    ),
-  };
-
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      {icons[name]}
-    </svg>
   );
 }
 

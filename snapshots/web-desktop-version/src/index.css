@@ -121,176 +121,6 @@ details[open] summary::after {
   padding: 18px;
 }
 
-.mobile-month-card,
-.mobile-tabbar {
-  display: none;
-}
-
-.auth-shell,
-.app-shell.app-mode {
-  width: min(430px, 100%);
-  min-height: 100vh;
-  margin: 0 auto;
-}
-
-.auth-shell {
-  display: grid;
-  align-items: center;
-  padding: 18px;
-}
-
-.auth-card {
-  display: grid;
-  gap: 24px;
-  padding: 22px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: var(--shadow);
-}
-
-.auth-card h1,
-.screen-title h1 {
-  font-size: clamp(2rem, 12vw, 3.2rem);
-  line-height: 0.98;
-}
-
-.auth-form {
-  display: grid;
-  gap: 10px;
-}
-
-.auth-form button,
-.lock-button {
-  display: grid;
-  place-items: center;
-  min-height: 42px;
-  border-radius: 10px;
-  padding: 10px 13px;
-  background: var(--ink);
-  color: #fff;
-  font-weight: 900;
-}
-
-.profile-form {
-  margin-top: 14px;
-}
-
-.privacy-note {
-  margin: 12px 0 0;
-  color: var(--muted);
-  font-size: 0.86rem;
-  font-weight: 750;
-  line-height: 1.5;
-}
-
-.app-shell.app-mode {
-  padding: 12px 12px 96px;
-}
-
-.app-mode .topbar {
-  top: 0;
-  margin: -12px -12px 10px;
-  padding: 12px;
-  background: rgba(245, 247, 243, 0.94);
-}
-
-.app-mode .top-nav,
-.app-mode .hero {
-  display: none;
-}
-
-.app-mode .layout {
-  display: block;
-}
-
-.app-mode .main-column,
-.app-mode .side-column {
-  display: contents;
-}
-
-.app-mode .tab-section {
-  display: none;
-}
-
-.app-mode.mobile-tab-today .today-tab,
-.app-mode.mobile-tab-spend .spend-tab,
-.app-mode.mobile-tab-goals .goals-tab,
-.app-mode.mobile-tab-me .me-tab {
-  display: grid;
-  margin-bottom: 12px;
-}
-
-.screen-title {
-  gap: 8px;
-  padding: 8px 2px 2px;
-}
-
-.screen-title h1 {
-  max-width: 360px;
-}
-
-.app-mode .mobile-month-card {
-  grid-template-columns: 1fr auto;
-  gap: 10px;
-  align-items: end;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: var(--shadow);
-}
-
-.app-mode .mobile-month-card .ghost-button {
-  min-height: 43px;
-  white-space: nowrap;
-}
-
-.app-mode .mobile-tabbar {
-  position: fixed;
-  z-index: 40;
-  right: max(10px, env(safe-area-inset-right));
-  bottom: max(10px, env(safe-area-inset-bottom));
-  left: max(10px, env(safe-area-inset-left));
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 4px;
-  max-width: 430px;
-  margin: 0 auto;
-  padding: 7px;
-  border: 1px solid rgba(220, 226, 220, 0.9);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 18px 50px rgba(24, 32, 28, 0.16);
-  backdrop-filter: blur(18px);
-}
-
-.app-mode .mobile-tabbar button {
-  min-width: 0;
-  min-height: 48px;
-  border-radius: 12px;
-  background: transparent;
-  color: #667068;
-  font-size: 0.78rem;
-  font-weight: 900;
-}
-
-.app-mode .mobile-tabbar svg {
-  width: 21px;
-  height: 21px;
-  margin-bottom: 3px;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 2;
-}
-
-.app-mode .mobile-tabbar button.active {
-  background: #18201c;
-  color: #ffffff;
-}
-
 .topbar {
   position: sticky;
   z-index: 20;
@@ -558,7 +388,7 @@ h1 {
 }
 
 h2 {
-  font-size: clamp(2.5rem, 8vw, 4.4rem);
+  font-size: clamp(2.5rem, 8vw, 5rem);
 }
 
 h3 {
@@ -603,22 +433,6 @@ h3 {
   align-items: center;
   margin-bottom: 16px;
   padding: 18px;
-}
-
-.quick-setup-form {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.quick-setup-form button {
-  grid-column: 1 / -1;
-  min-height: 42px;
-  border-radius: 8px;
-  padding: 10px 12px;
-  background: var(--ink);
-  color: #ffffff;
-  font-weight: 900;
 }
 
 .onboarding-card p {
@@ -680,39 +494,11 @@ h3 {
   padding: 18px;
 }
 
-.status-card {
-  display: grid;
-  gap: 8px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: #ffffff;
-  box-shadow: var(--shadow);
-}
-
-.status-card.danger {
-  border-color: #ffd5d5;
-  background: #fff0f0;
-}
-
-.status-card.danger .label,
-.status-card.danger h3 {
-  color: var(--red);
-}
-
-.status-card p {
-  margin: 0;
-  color: #536158;
-  font-weight: 750;
-  line-height: 1.45;
-}
-
 .safe-card {
   position: relative;
   overflow: hidden;
   padding: 26px;
   color: var(--ink);
-  container-type: inline-size;
 }
 
 .safe-card::before {
@@ -753,30 +539,9 @@ h3 {
   align-items: flex-start;
 }
 
-.app-mode .safe-card-top {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-.safe-card-top > div:first-child {
-  min-width: 0;
-}
-
-.safe-card h2 {
-  max-width: 100%;
-  font-size: clamp(2.2rem, 12cqw, 4.1rem);
-  line-height: 0.96;
-  white-space: nowrap;
-  overflow-wrap: normal;
-  word-break: keep-all;
-}
-
 .days-pill,
 .score-badge {
   flex: 0 0 auto;
-  width: fit-content;
-  max-width: 100%;
   padding: 8px 10px;
   border-radius: 8px;
   background: var(--ink);
@@ -948,7 +713,6 @@ h3 {
 .ghost-button,
 .commitment-form button,
 .spending-form button,
-.goal-form button,
 .fx-header button,
 .quick-buttons button,
 .paid-button,
@@ -990,9 +754,6 @@ h3 {
 
 .commitment-form button,
 .spending-form button,
-.goal-form button,
-.daily-total-form button,
-.paste-form button,
 .quick-buttons button,
 .fx-header button {
   background: var(--ink);
@@ -1033,10 +794,7 @@ h3 {
 }
 
 .commitment-form,
-.spending-form,
-.goal-form,
-.daily-total-form,
-.paste-form {
+.spending-form {
   display: grid;
   grid-template-columns: 1fr 1fr 140px 132px;
   gap: 10px;
@@ -1044,10 +802,6 @@ h3 {
 }
 
 .commitment-form input[name="notes"] {
-  grid-column: span 3;
-}
-
-.goal-form input[name="note"] {
   grid-column: span 3;
 }
 
@@ -1059,26 +813,6 @@ h3 {
   grid-column: span 2;
 }
 
-.daily-total-form {
-  grid-template-columns: 150px 1fr;
-}
-
-.paste-form {
-  grid-template-columns: 1fr;
-}
-
-.paste-form textarea {
-  min-height: 132px;
-}
-
-.helper-text {
-  margin: 10px 0 0;
-  color: var(--muted);
-  font-size: 0.86rem;
-  font-weight: 750;
-  line-height: 1.5;
-}
-
 .quick-buttons {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -1088,39 +822,6 @@ h3 {
 
 .quick-buttons button {
   background: var(--green);
-}
-
-.quick-buttons.compact {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-bottom: 10px;
-}
-
-.quick-today-card {
-  gap: 12px;
-}
-
-.quick-today-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.quick-today-form {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 86px;
-  gap: 9px;
-}
-
-.quick-today-form button {
-  display: grid;
-  place-items: center;
-  min-height: 42px;
-  border-radius: 8px;
-  padding: 10px 12px;
-  background: var(--ink);
-  color: #fff;
-  font-weight: 900;
 }
 
 .list {
@@ -1212,73 +913,6 @@ h3 {
   grid-column: 1 / -1;
   color: var(--muted);
   font-weight: 750;
-}
-
-.goal-hero {
-  gap: 14px;
-}
-
-.goal-ring {
-  display: grid;
-  place-items: center;
-  justify-self: end;
-  width: 92px;
-  height: 92px;
-  border: 10px solid #dcebdd;
-  border-top-color: var(--green);
-  border-radius: 999px;
-  background: #ffffff;
-  text-align: center;
-}
-
-.goal-ring div {
-  display: grid;
-  place-items: center;
-  gap: 2px;
-  line-height: 1;
-}
-
-.goal-ring strong,
-.goal-ring span {
-  display: block;
-}
-
-.goal-ring strong {
-  font-size: 1.25rem;
-}
-
-.goal-ring span {
-  color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 900;
-}
-
-.goal-item {
-  display: grid;
-  gap: 12px;
-}
-
-.goal-item-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.goal-item-head p {
-  margin: 5px 0 0;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.goal-item-head span {
-  min-width: 52px;
-  padding: 7px 9px;
-  border-radius: 999px;
-  background: #e6f4eb;
-  color: var(--green);
-  font-weight: 950;
-  text-align: center;
 }
 
 .danger-zone {
@@ -1437,25 +1071,12 @@ h3 {
 }
 
 @media (max-width: 760px) {
-  html {
-    background: #f5f7f3;
-  }
-
-  body {
-    background: #f5f7f3;
-  }
-
   .app-shell {
-    width: min(430px, 100%);
-    min-height: 100vh;
-    padding: 12px 12px 96px;
+    padding: 14px;
   }
 
   .topbar {
-    top: 0;
-    margin: -12px -12px 10px;
-    padding: 12px;
-    background: rgba(245, 247, 243, 0.94);
+    margin: -14px -14px 6px;
   }
 
   .top-nav {
@@ -1463,67 +1084,21 @@ h3 {
   }
 
   .hero {
-    display: none;
+    padding-top: 22px;
   }
 
-  .layout {
-    display: block;
-  }
-
-  .main-column,
-  .side-column {
-    display: contents;
-  }
-
-  .tab-section {
-    display: none;
-  }
-
-  .mobile-tab-today .today-tab,
-  .mobile-tab-spend .spend-tab,
-  .mobile-tab-goals .goals-tab,
-  .mobile-tab-me .me-tab {
-    display: grid;
-    margin-bottom: 12px;
-  }
-
-  .mobile-month-card {
-    grid-template-columns: 1fr auto;
-    gap: 10px;
-    align-items: end;
-    padding: 12px;
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.94);
-    box-shadow: var(--shadow);
-  }
-
-  .mobile-month-card .ghost-button {
-    min-height: 43px;
-    white-space: nowrap;
-  }
-
+  .hero-panel,
   .onboarding-card {
     grid-template-columns: 1fr;
   }
 
-  .quick-setup-form {
-    grid-template-columns: 1fr;
-  }
-
-  .onboarding-card,
-  .card,
-  .summary-card,
-  .safe-card,
-  .insight-card {
-    border-radius: 12px;
-    box-shadow: 0 12px 32px rgba(31, 42, 35, 0.07);
+  .hero-mini-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .grid-cards,
   .insight-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
   }
 
   .safe-meta-grid,
@@ -1532,15 +1107,11 @@ h3 {
   .preset-grid,
   .commitment-form,
   .spending-form,
-  .goal-form,
-  .daily-total-form,
-  .paste-form,
   .action-strip {
     grid-template-columns: 1fr;
   }
 
   .commitment-form input[name="notes"],
-  .goal-form input[name="note"],
   .spending-form input:nth-of-type(3) {
     grid-column: auto;
   }
@@ -1563,26 +1134,16 @@ h3 {
   }
 
   .safe-card {
-    padding: 20px;
+    padding: 22px;
   }
 
-  .safe-card h2 {
-    font-size: clamp(2.2rem, 13cqw, 3.25rem);
-    overflow-wrap: normal;
-  }
-
-  .safe-card-top {
-    display: grid;
-    gap: 12px;
-  }
-
+  .safe-card-top,
   .history-item {
     display: grid;
   }
 
   .days-pill {
     width: fit-content;
-    max-width: 100%;
   }
 
   .history-right {
@@ -1595,51 +1156,6 @@ h3 {
 
   .converter-arrow {
     display: none;
-  }
-
-  .mobile-tabbar {
-    position: fixed;
-    z-index: 40;
-    right: max(10px, env(safe-area-inset-right));
-    bottom: max(10px, env(safe-area-inset-bottom));
-    left: max(10px, env(safe-area-inset-left));
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 4px;
-    max-width: 430px;
-    margin: 0 auto;
-    padding: 7px;
-    border: 1px solid rgba(220, 226, 220, 0.9);
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.94);
-    box-shadow: 0 18px 50px rgba(24, 32, 28, 0.16);
-    backdrop-filter: blur(18px);
-  }
-
-  .mobile-tabbar button {
-    min-width: 0;
-    min-height: 48px;
-    border-radius: 12px;
-    background: transparent;
-    color: #667068;
-    font-size: 0.78rem;
-    font-weight: 900;
-  }
-
-  .mobile-tabbar svg {
-    width: 21px;
-    height: 21px;
-    margin-bottom: 3px;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 2;
-  }
-
-  .mobile-tabbar button.active {
-    background: #18201c;
-    color: #ffffff;
   }
 }
 
@@ -1654,14 +1170,6 @@ h3 {
 
   h2 {
     font-size: 2.55rem;
-  }
-
-  .safe-card h2 {
-    font-size: clamp(2rem, 12cqw, 2.85rem);
-  }
-
-  .safe-card .label {
-    max-width: 16rem;
   }
 
   .grid-cards,
