@@ -611,6 +611,10 @@ h3 {
   gap: 10px;
 }
 
+.setup-card .quick-setup-form {
+  grid-template-columns: 1fr;
+}
+
 .quick-setup-form button {
   grid-column: 1 / -1;
   min-height: 42px;

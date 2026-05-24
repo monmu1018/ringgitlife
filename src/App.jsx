@@ -753,6 +753,7 @@ export default function App() {
     });
 
     setShowOnboarding(false);
+    setActiveTab("today");
     notify("Simple setup saved.");
   }
 
@@ -1301,6 +1302,62 @@ export default function App() {
     );
   }
 
+  if (showOnboarding && onboarding.completed < onboarding.steps.length) {
+    return (
+      <main className="auth-shell setup-shell">
+        {toast && <div className="toast">{toast}</div>}
+
+        <section className="auth-card setup-card">
+          <div className="brand-lockup">
+            <div className="brand-mark">RL</div>
+            <div>
+              <strong>RinggitLife</strong>
+              <span>Simple setup</span>
+            </div>
+          </div>
+
+          <div>
+            <p className="eyebrow">No bank login needed</p>
+            <h1>Start with 3 rough numbers.</h1>
+            <p className="tagline">
+              This gives you today’s safe-to-spend. You can adjust the details
+              later in Me.
+            </p>
+          </div>
+
+          <form className="quick-setup-form" onSubmit={saveQuickSetup}>
+            <input
+              name="income"
+              type="number"
+              step="0.01"
+              placeholder="Monthly income RM"
+              defaultValue={data.income.netSalary || ""}
+            />
+            <input
+              name="spendTarget"
+              type="number"
+              step="0.01"
+              placeholder="Monthly spending target RM"
+              defaultValue={data.personal?.monthlySpendingTarget || ""}
+            />
+            <input
+              name="fixedEstimate"
+              type="number"
+              step="0.01"
+              placeholder="Fixed costs estimate RM"
+              defaultValue={totals.fixed || ""}
+            />
+            <button type="submit">Show my safe-to-spend</button>
+          </form>
+
+          <button className="text-button" onClick={() => setShowOnboarding(false)}>
+            Set up later
+          </button>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className={`app-shell app-mode mobile-tab-${activeTab}`}>
       {toast && <div className="toast">{toast}</div>}
@@ -1405,48 +1462,6 @@ export default function App() {
           </div>
         </aside>
       </section>
-
-      {showOnboarding && onboarding.completed < onboarding.steps.length && (
-        <section className="onboarding-card tab-section today-tab">
-          <div>
-            <p className="label">No bank login needed</p>
-            <h3>Start with 3 rough numbers</h3>
-            <p>
-              Add income, fixed costs, and this month's spending target. You can
-              adjust the details later.
-            </p>
-          </div>
-
-          <form className="quick-setup-form" onSubmit={saveQuickSetup}>
-            <input
-              name="income"
-              type="number"
-              step="0.01"
-              placeholder="Monthly income RM"
-              defaultValue={data.income.netSalary || ""}
-            />
-            <input
-              name="spendTarget"
-              type="number"
-              step="0.01"
-              placeholder="Monthly spending target RM"
-              defaultValue={data.personal?.monthlySpendingTarget || ""}
-            />
-            <input
-              name="fixedEstimate"
-              type="number"
-              step="0.01"
-              placeholder="Fixed costs estimate RM"
-              defaultValue={totals.fixed || ""}
-            />
-            <button type="submit">Show my safe-to-spend</button>
-          </form>
-
-          <button className="text-button" onClick={() => setShowOnboarding(false)}>
-            Skip
-          </button>
-        </section>
-      )}
 
       <section className="layout">
         <div className="main-column">
