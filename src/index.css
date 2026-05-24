@@ -57,6 +57,7 @@ textarea {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 8px;
+  min-height: 44px;
   padding: 11px 12px;
   background: #fff;
   color: var(--ink);
@@ -310,6 +311,7 @@ details[open] summary::after {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 .brand-mark {
@@ -337,6 +339,30 @@ details[open] summary::after {
   color: var(--muted);
   font-size: 0.78rem;
   font-weight: 750;
+}
+
+.brand-klcc {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 38px;
+  margin-left: 2px;
+  color: var(--green);
+  opacity: 0.72;
+}
+
+.auth-card .brand-klcc {
+  width: 42px;
+  height: 48px;
+  margin-left: auto;
+  opacity: 0.52;
+}
+
+.brand-klcc path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .top-nav {
@@ -1452,7 +1478,7 @@ h3 {
   .app-shell {
     width: min(430px, 100%);
     min-height: 100vh;
-    padding: 12px 12px 96px;
+    padding: 10px 12px 112px;
   }
 
   .topbar {
@@ -1467,7 +1493,34 @@ h3 {
   }
 
   .hero {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px 0 10px;
+  }
+
+  .hero h1 {
+    max-width: 360px;
+  }
+
+  .hero-panel {
     display: none;
+  }
+
+  .hero-actions {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .tagline {
+    margin-top: 8px;
+    font-size: 0.98rem;
+    line-height: 1.45;
+  }
+
+  .trust-line {
+    margin-top: 10px;
+    padding: 8px 10px;
+    font-size: 0.8rem;
   }
 
   .layout {
@@ -1524,6 +1577,14 @@ h3 {
     box-shadow: 0 12px 32px rgba(31, 42, 35, 0.07);
   }
 
+  .card {
+    padding: 16px;
+  }
+
+  details[open] summary {
+    margin-bottom: 14px;
+  }
+
   .grid-cards,
   .insight-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1559,19 +1620,26 @@ h3 {
 
   .quick-buttons {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
   }
 
   .quick-buttons button {
-    padding-inline: 4px;
-    font-size: 0.84rem;
+    min-height: 52px;
+    padding: 12px 4px;
+    border-radius: 12px;
+    font-size: 0.9rem;
   }
 
   .safe-card {
-    padding: 20px;
+    padding: 24px 20px 22px;
+    margin-bottom: 14px;
+    border-color: rgba(36, 107, 69, 0.2);
   }
 
   .safe-card h2 {
-    font-size: clamp(2.2rem, 13cqw, 3.25rem);
+    margin-top: 3px;
+    font-size: clamp(2.45rem, 14cqw, 3.45rem);
     overflow-wrap: normal;
   }
 
@@ -1587,6 +1655,34 @@ h3 {
   .days-pill {
     width: fit-content;
     max-width: 100%;
+    min-height: 40px;
+    padding: 9px 12px;
+  }
+
+  .safe-meta-grid div {
+    padding: 13px;
+  }
+
+  .status-text {
+    margin-top: 16px;
+    font-size: 1.02rem;
+  }
+
+  .action-strip button,
+  .action-strip label,
+  .text-button,
+  .preset-button,
+  .ghost-button,
+  .commitment-form button,
+  .spending-form button,
+  .goal-form button,
+  .daily-total-form button,
+  .paste-form button,
+  .paid-button,
+  .delete-button,
+  .toggle,
+  .danger-zone {
+    min-height: 48px;
   }
 
   .history-right {
@@ -1661,7 +1757,7 @@ h3 {
   }
 
   .safe-card h2 {
-    font-size: clamp(2rem, 12cqw, 2.85rem);
+    font-size: clamp(2.2rem, 13cqw, 3.05rem);
   }
 
   .safe-card .label {
@@ -1672,6 +1768,32 @@ h3 {
   .insight-grid,
   .hero-mini-grid {
     grid-template-columns: 1fr;
+  }
+
+  .safe-meta-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .safe-meta-grid div {
+    padding: 10px 8px;
+  }
+
+  .safe-meta-grid span {
+    font-size: 0.72rem;
+  }
+
+  .safe-meta-grid strong {
+    font-size: 1.05rem;
+  }
+
+  .quick-buttons {
+    gap: 7px;
+  }
+
+  .quick-buttons button {
+    min-height: 54px;
+    font-size: 0.86rem;
   }
 
   .brand-lockup span {

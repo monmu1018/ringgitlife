@@ -189,6 +189,32 @@ function formatPlain(value) {
   }).format(num(value));
 }
 
+function KlccMark() {
+  return (
+    <svg
+      className="brand-klcc"
+      viewBox="0 0 48 56"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M18 6l-4 5v38" />
+      <path d="M30 6l4 5v38" />
+      <path d="M14 15h8" />
+      <path d="M26 15h8" />
+      <path d="M13 23h10" />
+      <path d="M25 23h10" />
+      <path d="M12 31h11" />
+      <path d="M25 31h11" />
+      <path d="M17 6h14" />
+      <path d="M19 39h10" />
+      <path d="M21 19v30" />
+      <path d="M27 19v30" />
+      <path d="M23 27h2" />
+      <path d="M9 49h30" />
+    </svg>
+  );
+}
+
 function makeCommitment(name, amount, dueDay) {
   return {
     id: uid(),
@@ -1241,6 +1267,7 @@ export default function App() {
               <strong>RinggitLife</strong>
               <span>Private money sense</span>
             </div>
+            <KlccMark />
           </div>
 
           <div>
@@ -1314,6 +1341,7 @@ export default function App() {
               <strong>RinggitLife</strong>
               <span>Simple setup</span>
             </div>
+            <KlccMark />
           </div>
 
           <div>
@@ -1369,6 +1397,7 @@ export default function App() {
             <strong>RinggitLife</strong>
             <span>{profile?.name || "Money sense for expat life"}</span>
           </div>
+          <KlccMark />
         </div>
 
         <button className="lock-button" type="button" onClick={lockApp}>
