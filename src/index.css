@@ -637,6 +637,26 @@ h3 {
   gap: 10px;
 }
 
+.setup-hints {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.setup-hints span {
+  display: grid;
+  place-items: center;
+  min-height: 38px;
+  padding: 8px;
+  border: 1px solid #dbe9df;
+  border-radius: 8px;
+  background: #eef6f0;
+  color: #2c5f3e;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-align: center;
+}
+
 .setup-card .quick-setup-form {
   grid-template-columns: 1fr;
 }
@@ -735,6 +755,77 @@ h3 {
   color: #536158;
   font-weight: 750;
   line-height: 1.45;
+}
+
+.starter-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #dbe9df;
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(238, 246, 240, 0.94)),
+    #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.starter-card h3,
+.starter-card p {
+  margin: 0;
+}
+
+.starter-card p {
+  color: #526057;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.starter-steps {
+  display: grid;
+  gap: 8px;
+}
+
+.starter-step {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 38px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.76);
+  color: #526057;
+  font-weight: 850;
+}
+
+.starter-step.done {
+  background: #e6f4eb;
+  color: var(--green);
+}
+
+.starter-step span {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(24, 32, 28, 0.08);
+}
+
+.starter-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.starter-actions button {
+  display: grid;
+  place-items: center;
+  min-height: 46px;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 900;
 }
 
 .safe-card {
@@ -1138,7 +1229,7 @@ h3 {
 
 .quick-today-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 86px;
+  grid-template-columns: minmax(0, 1fr) 132px 76px;
   gap: 9px;
 }
 
@@ -1151,6 +1242,10 @@ h3 {
   background: var(--ink);
   color: #fff;
   font-weight: 900;
+}
+
+.recent-card {
+  gap: 12px;
 }
 
 .list {
@@ -1568,6 +1663,10 @@ h3 {
     grid-template-columns: 1fr;
   }
 
+  .setup-hints {
+    grid-template-columns: 1fr;
+  }
+
   .onboarding-card,
   .card,
   .summary-card,
@@ -1629,6 +1728,10 @@ h3 {
     padding: 12px 4px;
     border-radius: 12px;
     font-size: 0.9rem;
+  }
+
+  .quick-today-form {
+    grid-template-columns: minmax(0, 1fr) 128px 76px;
   }
 
   .safe-card {
@@ -1794,6 +1897,14 @@ h3 {
   .quick-buttons button {
     min-height: 54px;
     font-size: 0.86rem;
+  }
+
+  .quick-today-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .quick-today-form input {
+    grid-column: 1 / -1;
   }
 
   .brand-lockup span {

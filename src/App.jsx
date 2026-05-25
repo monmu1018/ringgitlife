@@ -609,6 +609,10 @@ export default function App() {
       .slice(0, 5);
   }, [data.spendingLogs]);
 
+  const recentSpending = useMemo(() => {
+    return data.spendingLogs.slice(0, 3);
+  }, [data.spendingLogs]);
+
   const paidCommitments = useMemo(() => {
     const paid = data.commitments.filter((item) => item.paid);
     const amount = paid.reduce((sum, item) => sum + num(item.amount), 0);
@@ -1348,9 +1352,15 @@ export default function App() {
             <p className="eyebrow">No bank login needed</p>
             <h1>Start with 3 rough numbers.</h1>
             <p className="tagline">
-              This gives you today’s safe-to-spend. You can adjust the details
-              later in Me.
+              Use estimates. RinggitLife turns them into a simple daily MYR
+              spending guide.
             </p>
+          </div>
+
+          <div className="setup-hints" aria-label="Setup steps">
+            <span>1. Income</span>
+            <span>2. Monthly spend goal</span>
+            <span>3. Fixed costs</span>
           </div>
 
           <form className="quick-setup-form" onSubmit={saveQuickSetup}>
@@ -1514,6 +1524,36 @@ export default function App() {
             </button>
           </section>
 
+          {onboarding.completed < onboarding.steps.length && (
+            <section className="starter-card tab-section today-tab">
+              <div>
+                <p className="label">First 3 minutes</p>
+                <h3>Make today’s number useful.</h3>
+                <p>
+                  Add your monthly MYR plan once, then log spending whenever you remember.
+                </p>
+              </div>
+
+              <div className="starter-steps">
+                {onboarding.steps.map((step) => (
+                  <div className={step.done ? "starter-step done" : "starter-step"} key={step.label}>
+                    <span>{step.done ? "✓" : "•"}</span>
+                    {step.label}
+                  </div>
+                ))}
+              </div>
+
+              <div className="starter-actions">
+                <button type="button" onClick={() => setActiveTab("me")}>
+                  Set plan
+                </button>
+                <button type="button" className="ghost-button" onClick={() => setActiveTab("spend")}>
+                  Add spending
+                </button>
+              </div>
+            </section>
+          )}
+
           {totals.income > 0 && (totals.remaining < 0 || totals.paceRatio > 120) && (
             <section className="status-card danger tab-section today-tab">
               <p className="label">Slow down</p>
@@ -1605,8 +1645,50 @@ export default function App() {
                 }
                 required
               />
+              <select
+                value={spendingDraft.category}
+                onChange={(event) =>
+                  setSpendingDraft((prev) => ({
+                    ...prev,
+                    category: event.target.value,
+                  }))
+                }
+                aria-label="Spending category"
+              >
+                {["Food", "Coffee", "Grab / Transport", "Groceries", "Delivery", "Other"].map((category) => (
+                  <option key={category}>{category}</option>
+                ))}
+              </select>
               <button type="submit">Save</button>
             </form>
+          </section>
+
+          <section className="card recent-card tab-section today-tab">
+            <div className="quick-today-head">
+              <div>
+                <p className="label">Recent</p>
+                <h3>Latest spending</h3>
+              </div>
+              <button type="button" className="text-button" onClick={() => setActiveTab("spend")}>
+                Add more
+              </button>
+            </div>
+
+            <div className="mini-list">
+              {recentSpending.length === 0 && (
+                <p className="empty compact">
+                  No spending yet. Add one coffee, Grab, or daily total to start.
+                </p>
+              )}
+
+              {recentSpending.map((item) => (
+                <div key={item.id}>
+                  <span>{item.category}</span>
+                  <strong>{formatMYR(item.amount)}</strong>
+                  <small>{item.date} · {item.note || "No note"}</small>
+                </div>
+              ))}
+            </div>
           </section>
 
           <section className="grid-cards tab-section today-tab">
